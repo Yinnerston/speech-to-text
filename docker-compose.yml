@@ -1,0 +1,10 @@
+services:
+  speech2text:
+    build: ./speech2text
+    command: bash -c " python manage.py runserver 0.0.0.0:8000"
+    ports:
+      - 8000:8000
+    volumes:
+      - ./speech2text:/app
+    env_file:
+      - .backend.env
