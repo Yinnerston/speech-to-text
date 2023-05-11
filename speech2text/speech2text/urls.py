@@ -16,9 +16,27 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from ninja_extra import NinjaExtraAPI, api_controller, http_get
+from ninja_extra import NinjaExtraAPI, api_controller
+
+# from core.huggingface_services import speech2text_serivce
+from core.whisper_service import speech2text_serivce
+from ninja import File
+from ninja.files import UploadedFile
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
 
 api = NinjaExtraAPI()
+
+
+@api_controller("/speech")
+class SpeechController:
+    @api.post("/send")
+    def post_chat_endpoint(request, file: UploadedFile = File(...)):
+        # Always convert file to saved file
+        path = default_storage.save(file.name, ContentFile(file.read()))
+        output = {"transcript": speech2text_serivce(us_file=path, uploaded_file=file)}
+        default_storage.delete(path)
+        return output
 
 
 urlpatterns = [
