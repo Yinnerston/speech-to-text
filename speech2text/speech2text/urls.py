@@ -14,12 +14,17 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from core.schemas import ChatGPTSchema
 from django.contrib import admin
 from django.urls import path
-from ninja_extra import NinjaExtraAPI, api_controller
+from ninja_extra import NinjaExtraAPI, api_controller, route
 
 # from core.huggingface_services import speech2text_serivce
-from core.whisper_service import speech2text_serivce
+from core.whisper_service import (
+    speech2text_serivce,
+    chatgpt_service,
+    elevenlabs_service,
+)
 from ninja import File
 from ninja.files import UploadedFile
 from django.core.files.storage import default_storage
@@ -28,16 +33,54 @@ from django.core.files.base import ContentFile
 api = NinjaExtraAPI()
 
 
-@api_controller("/speech")
+@api_controller("/whisper")
 class SpeechController:
-    @api.post("/send")
-    def post_chat_endpoint(request, file: UploadedFile = File(...)):
+    @route.post(
+        "/send",
+        tags=["whisper"],
+    )
+    def speech_endpoint(request, file: UploadedFile = File(...)):
+        """
+        Create transcription from audio file
+        """
         # Always convert file to saved file
         path = default_storage.save(file.name, ContentFile(file.read()))
         output = {"transcript": speech2text_serivce(us_file=path, uploaded_file=file)}
         default_storage.delete(path)
         return output
 
+
+@api_controller("/chatgpt")
+class ChatGPTController:
+    @route.post(
+        "/send",
+        tags=["chatgpt"],
+    )
+    def chatgpt_endpoint(self, request, text: str):
+        """
+        Ask a funny question to chatgpt
+        """
+        # Always convert file to saved file
+        return chatgpt_service(text)
+
+
+@api_controller("/elevenlabs")
+class ElevenLabsController:
+    @route.post(
+        "/send",
+        tags=["elevenlabs"],
+    )
+    def elevenlabs_endpoint(self, request, text: str):
+        """
+        Text to speech using elevenlabs
+        """
+        # Always convert file to saved file
+        return elevenlabs_service(text)
+
+
+api.register_controllers(ChatGPTController)
+api.register_controllers(SpeechController)
+api.register_controllers(ElevenLabsController)
 
 urlpatterns = [
     path("admin/", admin.site.urls),

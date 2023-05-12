@@ -4,7 +4,17 @@ services:
     command: bash -c " python manage.py runserver 0.0.0.0:8000"
     ports:
       - 8000:8000
-    volumes:
-      - ./speech2text:/app
     env_file:
       - .backend.env
+    volumes:
+      - ./speech2text:/app
+  frontend:
+    build: ./frontend/speech2text
+    command: npm run start
+    ports:
+      - 19000:19000
+    env_file:
+      - .frontend.env
+    volumes:
+      - ./frontend/speech2text:/app
+      - /app/node_modules
