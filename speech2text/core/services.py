@@ -77,3 +77,9 @@ def elevenlabs_service(text: str):
     temp_file = File(temporary_audio_file, name=temporary_filename)
     SpeechModel.objects.create(transcription=text, audio_file=temp_file)
     return temporary_filename
+
+
+# TODO: Speech to speech service with chatgpt
+
+# https://gpt-index.readthedocs.io/en/latest/how_to/customization/custom_llms.html
+# https://gpt-index.readthedocs.io/en/latest/guides/tutorials/building_a_chatbot.html

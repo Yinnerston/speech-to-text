@@ -20,7 +20,7 @@ from django.urls import path
 from ninja_extra import NinjaExtraAPI, api_controller, route
 
 # from core.huggingface_services import speech2text_serivce
-from core.whisper_service import (
+from core.services import (
     speech2text_serivce,
     chatgpt_service,
     elevenlabs_service,
